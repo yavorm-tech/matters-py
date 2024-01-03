@@ -1,0 +1,96 @@
+version: '3.8'
+services:
+  matters-backend:
+    build: 
+      context: backend 
+    image: "${APP_NAME}-backend"
+    hostname: "${APP_NAME}-backend" 
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    container_name: "${APP_NAME}-backend"
+    command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf"
+      #    command: ["pm2-runtime", "/opt/backend-git-deploy/process.yml"]
+      # command: "pm2 logs -f"
+    environment: 
+      - CELERY_BROKER_URL="${REDIS_HOST}:6379/0"
+      - CELERY_RESULT_BACKEND=${REDIS_HOST}:6379/1
+      - DOCKER_HOST="${DOCKER_HOST}" 
+      - DATABASE_URL="${POSTGRES_URL}"
+      - GIT_USER=yavor-payarc
+      - GIT_PASSWD=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
+    links: 
+      - redis
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      default:
+        ipv4_address: "${BACKEND_IPV4}"
+        aliases:
+          - "${APP_NAME}-backend"
+    volumes:
+      - "${BACKEND_VOL}:/opt/backend"
+        #      - git-deployments:/tmp
+      - nginx-confs:/nginx-confs
+  redis:
+    container_name: "${APP_NAME}-redis"
+    image: "${REDIS_IMAGE}"
+    hostname: "${APP_NAME}-redis"
+    ports: []
+    networks: 
+      default:
+        ipv4_address: "${REDIS_IPV4}"
+        aliases:
+          - "${APP_NAME}-redis"
+  frontend:
+    build:
+      context: frontend
+    image: "${APP_NAME}-frontend"
+    hostname: "${APP_NAME}-frontend"
+    restart: unless-stopped
+    ports: []
+      #command: ["pm2-runtime","/opt/git-deploy-frontend/process.yml"]
+      #command: ["npm","run","dev"]
+    command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf"
+    container_name: "${APP_NAME}-frontend"
+    links: 
+      - "${APP_NAME}-backend"
+    depends_on:
+      - "${APP_NAME}-backend"
+    environment: []
+    volumes: 
+      - "${FRONTEND_VOL}:/opt/frontend"
+    networks:
+      default:
+        ipv4_address: "${FRONTEND_IPV4}"
+        aliases:
+          - "${APP_NAME}-frontend"
+  postgres:
+    image: "${POSTGRES_IMAGE}"
+    container_name: "${APP_NAME}-postgres"
+    hostname: "${APP_NAME}-postgres"
+    restart: unless-stopped
+    ports: []
+    environment: 
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWD}
+      - PGDATA=/var/lib/postgresql/data/pgdata 
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      default:
+        ipv4_address: "${POSTGRES_IPV4}"
+    volumes:
+      - "${POSTGRES_VOL}:/var/lib/postgresql/data"
+
+networks:
+  default:
+    name: "${APP_NAME}"
+    external: true
+volumes:
+  nginx-confs:
+    driver: local
+    driver_opts:
+      type: bind
+      o: bind
+      device: /opt/nginx-confs

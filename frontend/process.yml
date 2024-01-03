@@ -1,0 +1,9 @@
+apps:
+  - name : 'frontend'
+    script: 'npm run dev'
+    watch: false
+    max_memory_restart: '200M'
+    restart_delay: 3000
+    exp_backoff_restart_delay: 1000
+    log_file: '/tmp/frontend.log'
+    log_date_format : "MM/DD/YYYY HH:mm:ss"
