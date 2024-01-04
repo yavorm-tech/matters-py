@@ -13,10 +13,10 @@ services:
       #    command: ["pm2-runtime", "/opt/backend-git-deploy/process.yml"]
       # command: "pm2 logs -f"
     environment: 
-      - CELERY_BROKER_URL="${REDIS_HOST}:6379/0"
+      - CELERY_BROKER_URL=${REDIS_HOST}:6379/0
       - CELERY_RESULT_BACKEND=${REDIS_HOST}:6379/1
-      - DOCKER_HOST="${DOCKER_HOST}" 
-      - DATABASE_URL="${POSTGRES_URL}"
+      - DOCKER_HOST=${DOCKER_HOST}
+      - DATABASE_URL=${POSTGRES_URL}
       - GIT_USER=yavor-payarc
       - GIT_PASSWD=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
     links: 

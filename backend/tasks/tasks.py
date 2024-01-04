@@ -9,7 +9,7 @@ from python_on_whales import exceptions as POWExceptions
 import sys
 import shutil
 import boto3
-from models import Repositories, db, DeploymentErrors
+from models import db
 from celery.contrib.abortable import AbortableTask
 
 docker_host = os.environ.get("DOCKER_HOST")
@@ -52,9 +52,6 @@ def writeError(e, deployment_id):
 
 @shared_task(name='Add two numbers', bind=True, base=AbortableTask)
 def add(x, y):
-    repo = Repositories(name='test', url='http://test.local')
-    db.session.add(repo)
-    db.session.commit()
     return x + y
 
 

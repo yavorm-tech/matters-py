@@ -7,7 +7,7 @@ ENV VIRTUAL_ENV=/opt/venv/bin
 ENV PATH=$VIRTUAL_ENV:$PATH
 ENV FLASK_APP=app
 ENV APP_DIR="/opt/backend"
-RUN mkdir $APP_DIR 
+RUN mkdir "$APP_DIR"
 COPY ./requirements.txt $APP_DIR
 WORKDIR $APP_DIR
 RUN pip install -r requirements.txt
@@ -33,6 +33,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y iproute2 procps v
 ENV VIRTUAL_ENV="/opt/venv/bin"
 ENV PATH="$VIRTUAL_ENV:$PATH"
 ENV FLASK_APP=app
+ENV APP_DIR="/opt/backend"
 ENV GIT_PYTHON_GIT_EXECUTABLE=/usr/bin/git
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 RUN mkdir $APP_DIR
@@ -42,6 +43,8 @@ RUN groupadd -g 999 celery && useradd -u 999 --create-home --home-dir /app -g ce
 WORKDIR $APP_DIR
 RUN chmod +x $APP_DIR/entrypoint.sh
 RUN chown -R celery:celery $APP_DIR
+RUN mkdir -p /var/log/backend
 EXPOSE 8086
-ENTRYPOINT ["$APP_DIR/entrypoint.sh"]
+#ENTRYPOINT /opt/backend/entrypoint.sh
+#CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
 #CMD ["flask", "run", "--host","0.0.0.0", "--port","8086"]
