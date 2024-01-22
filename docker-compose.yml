@@ -3,12 +3,12 @@ services:
   matters-backend:
     build: 
       context: backend 
-    image: "${APP_NAME}-backend"
-    hostname: "${APP_NAME}-backend" 
+    image: "${COMPOSE_PROJECT_NAME}-backend"
+    hostname: "${COMPOSE_PROJECT_NAME}-backend" 
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
-    container_name: "${APP_NAME}-backend"
+    container_name: "${COMPOSE_PROJECT_NAME}-backend"
     command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf"
       #    command: ["pm2-runtime", "/opt/backend-git-deploy/process.yml"]
       # command: "pm2 logs -f"
@@ -28,36 +28,36 @@ services:
       default:
         ipv4_address: "${BACKEND_IPV4}"
         aliases:
-          - "${APP_NAME}-backend"
+          - "${COMPOSE_PROJECT_NAME}-backend"
     volumes:
       - "${BACKEND_VOL}:/opt/backend"
         #      - git-deployments:/tmp
       - nginx-confs:/nginx-confs
   redis:
-    container_name: "${APP_NAME}-redis"
+    container_name: "${COMPOSE_PROJECT_NAME}-redis"
     image: "${REDIS_IMAGE}"
-    hostname: "${APP_NAME}-redis"
+    hostname: "${COMPOSE_PROJECT_NAME}-redis"
     ports: []
     networks: 
       default:
         ipv4_address: "${REDIS_IPV4}"
         aliases:
-          - "${APP_NAME}-redis"
+          - "${COMPOSE_PROJECT_NAME}-redis"
   frontend:
     build:
       context: frontend
-    image: "${APP_NAME}-frontend"
-    hostname: "${APP_NAME}-frontend"
+    image: "${COMPOSE_PROJECT_NAME}-frontend"
+    hostname: "${COMPOSE_PROJECT_NAME}-frontend"
     restart: unless-stopped
     ports: []
       #command: ["pm2-runtime","/opt/git-deploy-frontend/process.yml"]
       #command: ["npm","run","dev"]
     command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf"
-    container_name: "${APP_NAME}-frontend"
+    container_name: "${COMPOSE_PROJECT_NAME}-frontend"
     links: 
-      - "${APP_NAME}-backend"
+      - "${COMPOSE_PROJECT_NAME}-backend"
     depends_on:
-      - "${APP_NAME}-backend"
+      - "${COMPOSE_PROJECT_NAME}-backend"
     environment: []
     volumes: 
       - "${FRONTEND_VOL}:/opt/frontend"
@@ -65,11 +65,11 @@ services:
       default:
         ipv4_address: "${FRONTEND_IPV4}"
         aliases:
-          - "${APP_NAME}-frontend"
+          - "${COMPOSE_PROJECT_NAME}-frontend"
   postgres:
     image: "${POSTGRES_IMAGE}"
-    container_name: "${APP_NAME}-postgres"
-    hostname: "${APP_NAME}-postgres"
+    container_name: "${COMPOSE_PROJECT_NAME}-postgres"
+    hostname: "${COMPOSE_PROJECT_NAME}-postgres"
     restart: unless-stopped
     ports: []
     environment: 
@@ -85,8 +85,13 @@ services:
 
 networks:
   default:
-    name: "${APP_NAME}"
+    name: "${COMPOSE_PROJECT_NAME}"
     external: true
+  deployment_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: ${DEPLOYMENT_NETWORK}
 volumes:
   nginx-confs:
     driver: local

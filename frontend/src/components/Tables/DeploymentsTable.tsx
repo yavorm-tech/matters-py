@@ -93,7 +93,6 @@ export const DeploymentsTable = () => {
   })
   if(data){
     console.log(data);
-  
   }else{
     console.log('empty');
   

@@ -183,10 +183,17 @@ class Person(BaseModel):
     eik = db.Column(db.String(13), index=True, default=None, nullable=True)
     fpn = db.Column(db.Integer, index=True, default=None)
     executive_act_person = db.relationship('', backref='executive_act_person', lazy='dynamic', cascade="all, delete-orphan")
-    _default_fields = [
-        "error",
-        "stacktrace",
-    ]
+    person_property = db.relationship('', backref='person_property', lazy='dynamic', cascade="all, delete-orphan")
+
+class PersonProperty(BaseModel):
+    def __init__(self):
+        pass
+    id = db.Column(db.Integer, primary_key=True)
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+    title = db.Column(db.String(50), index=True)
+    type = db.Column(db.Integer, index=True) # Движимо, недвижимо
+    description = db.Column(db.String(5000), index=True) # Подробно описание, за недвижимо имущество може да е повече символи.
+
 class MonetaryClaims(BaseModel):
     __tablename__ = 'monetary_claims'
     id = db.Column(db.Integer, primary_key=True)

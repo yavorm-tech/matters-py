@@ -15,11 +15,11 @@ export const DeploymentsPanel:FC<PropsWithChildren> = ({children}) => {
 
     return (
         <>
-        <CustomButton action={() => props.setOpenModal('dismissible')} color="green" > New</CustomButton>
+        <CustomButton action={() => props.setOpenModal('dismissible')} color="green" > New </CustomButton>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
-        <Modal.Header >Add new deployment</Modal.Header>
+        <Modal.Header>Add new deployment</Modal.Header>
         <Modal.Body>
-          <DeploymentForm test="one" action={() => setOpenModal('undefined')}/>
+          <DeploymentForm test="one" action={() => setOpenModal('undefined')} />
         </Modal.Body>
       </Modal>
         <DeploymentsTable />

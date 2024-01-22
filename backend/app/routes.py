@@ -47,7 +47,16 @@ def getUsedDeploymentPorts():
    return rand_number
 
 
+
 @my_blueprint.route('/', methods=['GET'])
+def getGitRepos():
+   return jsonify({"result": "success"})
+
+@my_blueprint.route('/getcommits', methods=['GET'])
+def getGitRepos():
+   return jsonify({"result": "success"})
+
+@my_blueprint.route('/getgitdeployments', methods=['GET'])
 def getGitRepos():
    return jsonify({"result": "success"})
 
