@@ -1,5 +1,5 @@
 var BACKEND_URL = "/api"
-var DEPLOYMENTS_PATH = `${BACKEND_URL}/getdeployments`;
+var PERSONS_PATH = `${BACKEND_URL}/person`;
 var COMMITS_PATH = `${BACKEND_URL}/getcommits`;
 var REPOS_PATH = `${BACKEND_URL}/getgitrepos`;
 var REPO_BRANCHES_PATH = `${BACKEND_URL}/getgitrepos`;
@@ -9,8 +9,8 @@ import {getOperation, postOperation} from "./util";
 
 
 
-export function getDeployments(){
-    return getOperation(`${DEPLOYMENTS_PATH}`)
+export function getPersons(){
+    return getOperation(`${PERSONS_PATH}`)
 }
 export function getCommits(){
     return getOperation(`${COMMITS_PATH}`)

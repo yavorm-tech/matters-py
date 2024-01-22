@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getDeployments } from '../../apis';
+import {getPersons} from '../../apis';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useQuery } from '@tanstack/react-query';
 
@@ -19,7 +19,7 @@ type Deployment = {
 const columnHelper = createColumnHelper<Deployment>();
 
 
-export const DeploymentsTable = () => {
+export const PersonsTable = () => {
   const [users, setUsers] = useState([]);
 
   const columns = [
@@ -89,7 +89,7 @@ export const DeploymentsTable = () => {
 
   const {isLoading, error, data, isFetched} = useQuery({
     queryKey: ['users'],
-    queryFn: () => getDeployments(),
+    queryFn: () => getPersons(),
   })
   if(data){
     console.log(data);

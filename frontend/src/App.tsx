@@ -1,5 +1,5 @@
 import './App.css'
-import { DeploymentsTable } from './components/Tables/DeploymentsTable'
+import { PersonsTable } from './components/Tables/PersonsTable.tsx'
 import { DeploymentForm } from './components/Forms/DeploymentForm'
 import { CommitsTable } from './components/Tables/CommitsTable'
 import { Tabs, Sidebar, Navbar, Button,Flowbite, DarkThemeToggle  } from 'flowbite-react'
@@ -7,7 +7,8 @@ import { HiAdjustments, HiClipboardList, HiUserCircle } from 'react-icons/hi';
 import { MdCommit } from 'react-icons/md';
 import {GrDeploy} from 'react-icons/gr'
 import { customTheme } from './themes/customTheme'
-import { DeploymentsPanel } from './components/Panels/DeploymentsPanel'
+import { PersonPanel } from './components/Panels/PersonPanel.tsx'
+import { PersonPropertyPanel } from './components/Panels/PersonPropertyPanel.tsx'
 import { TestTable } from './components/Tables/test'
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from 'react-icons/hi';
 import axios from 'axios'
@@ -81,13 +82,13 @@ function App() {
       <div className="absolute top-0 right-0"><DarkThemeToggle /></div>
       
         <ul className="flex  items-center justify-center text-gray-900 dark:text-white w-full ">
-          <li><Link to="/deployments" className="flex p-3" ><MdRocketLaunch /> Deployments</Link></li>
-          <li><Link to="/commits" className="flex p-3"><IoMdGitCommit />Commits</Link></li>
+          <li><Link to="/person" className="flex p-3" ><MdRocketLaunch /> Persons</Link></li>
+          <li><Link to="/personproperty" className="flex p-3"><IoMdGitCommit />Person property</Link></li>
         </ul>
 
     <Routes>
-      <Route path="/deployments" element={<DeploymentsPanel />} />
-      <Route path="/commits" element={<CommitsTable />} />
+      <Route path="/person" element={<PersonPanel />} />
+      <Route path="/personproperty" element={<PersonPropertyPanel />} />
     </Routes>
 
     </div>

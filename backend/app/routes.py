@@ -7,7 +7,7 @@ from uuid import uuid4
 import random
 import re
 import pdb
-
+from seeders.insert_person_records import InsertFakeData
 from celery import group
 from os import path, mkdir
 
@@ -40,15 +40,25 @@ def getUsedDeploymentPorts():
 
 
 
-@my_blueprint.route('/', methods=['GET'])
+@my_blueprint.route('/', methods=['GET']) # Registry of all matters
 def getGitRepos():
    return jsonify({"result": "success"})
 
-@my_blueprint.route('/getcommits', methods=['GET'])
-def getGitCommits():
+@my_blueprint.route('/person', methods=['GET']) # Return Person Panel
+def persons():
    return jsonify({"result": "success"})
 
-@my_blueprint.route('/getgitdeployments', methods=['GET'])
-def getGitDeployments():
+@my_blueprint.route('/exitdocument', methods=['GET'])
+def exitdocuments():
    return jsonify({"result": "success"})
 
+@my_blueprint.route('/enterdocument', methods=['GET'])
+def enterdocuments():
+   return jsonify({"result": "success"})
+
+@my_blueprint.route('/seedPersons', methods=['POST'])
+def seedData():
+    faker = InsertFakeData()
+    persons = faker.create10Persons()
+    pdb.set_trace()
+    return jsonify({"result": persons})
