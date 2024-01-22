@@ -9,16 +9,8 @@ import re
 import pdb
 
 from celery import group
-#from utils import AddPushEvent, returnValueFromIndex
-#from tasks.tasks import pullRepo, deployRepo, buildContainer, getContainerIpv4Address
-from utils.awss3 import GetS3Objects
-from utils.nginx import substituteNginxConfParams
-from utils.ssh import restartNginx
-from utils.receivewebhook import ParseGitPayload
-from utils.githubpayloads import getPayloads
 from os import path, mkdir
-from os import remove as removeFile
-from utils.substitudeinfile import substitueStringInFile
+
 
 my_blueprint = Blueprint('my blueprint', __name__)
 
@@ -53,10 +45,10 @@ def getGitRepos():
    return jsonify({"result": "success"})
 
 @my_blueprint.route('/getcommits', methods=['GET'])
-def getGitRepos():
+def getGitCommits():
    return jsonify({"result": "success"})
 
 @my_blueprint.route('/getgitdeployments', methods=['GET'])
-def getGitRepos():
+def getGitDeployments():
    return jsonify({"result": "success"})
 

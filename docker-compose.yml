@@ -17,8 +17,6 @@ services:
       - CELERY_RESULT_BACKEND=${REDIS_HOST}:6379/1
       - DOCKER_HOST=${DOCKER_HOST}
       - DATABASE_URL=${POSTGRES_URL}
-      - GIT_USER=yavor-payarc
-      - GIT_PASSWD=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
     links: 
       - redis
     depends_on:

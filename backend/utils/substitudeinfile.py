@@ -40,8 +40,4 @@ class substitueStringInFile:
         copyfile(outfile.name, self.infile)
         removeFile(outfile.name)
 
-# patterns =[{'pattern':'<nginx-port>','substitution':'12345'},{'pattern':'<container-ip>', 'substitution':'172.21.0.3'},{'pattern':'<port>', 'substitution':'80'}]
-# patterns = (['one','one-two'],['two','two-three'])
-# test = substitueStringInFile('/tmp/nginx-template.conf')
-# test.substitudeInFile(patterns)
-# test.closeFiles()
+
