@@ -182,7 +182,14 @@ class Person(BaseModel):
     fpn = db.Column(db.Integer, index=True, default=None)
     executive_act_person = db.relationship('ExecutiveActPerson', backref='person_executive_act_person', lazy='dynamic', cascade="all, delete-orphan")
     person_property = db.relationship('PersonProperty', backref='person_property', lazy='dynamic', cascade="all, delete-orphan")
-
+    _default_fields = [
+            "first_name",
+            "middle_name",
+            "last_name",
+            "egn",
+            "eik",
+            "fpn",
+        ]
 class PersonProperty(BaseModel):
     __tablename__ = 'person_property'
     def __init__(self):

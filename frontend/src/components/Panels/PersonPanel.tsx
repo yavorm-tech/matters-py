@@ -1,4 +1,4 @@
-import { DeploymentForm } from "../Forms/DeploymentForm";
+import { AddPersonForm } from "../Forms/AddPersonForm.tsx";
 import { PersonsTable } from "../Tables/PersonsTable.tsx";
 import React,{FC, useState, useRef, useEffect, PropsWithChildren} from 'react';
 import { Button, Modal,  Checkbox, Label, TextInput, CustomFlowbiteTheme } from 'flowbite-react';
@@ -17,9 +17,9 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
         <>
         <CustomButton action={() => props.setOpenModal('dismissible')} color="green" > New </CustomButton>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
-        <Modal.Header>Add new person</Modal.Header>
+            <Modal.Header><div className="text-blue-700 "> Add new person</div></Modal.Header>
         <Modal.Body>
-          <DeploymentForm test="one" action={() => setOpenModal('undefined')} />
+          <AddPersonForm test="one" action={() => setOpenModal('undefined')} />
         </Modal.Body>
       </Modal>
         <PersonsTable />

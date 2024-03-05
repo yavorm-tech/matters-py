@@ -1,6 +1,6 @@
 import './App.css'
 import { PersonsTable } from './components/Tables/PersonsTable.tsx'
-import { DeploymentForm } from './components/Forms/DeploymentForm'
+import { AddPersonForm } from './components/Forms/AddPersonForm.tsx'
 import { CommitsTable } from './components/Tables/CommitsTable'
 import { Tabs, Sidebar, Navbar, Button,Flowbite, DarkThemeToggle  } from 'flowbite-react'
 import { HiAdjustments, HiClipboardList, HiUserCircle } from 'react-icons/hi';

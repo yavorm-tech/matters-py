@@ -1,12 +1,12 @@
 from flask import Blueprint, current_app, request, jsonify
 from flask_cors import cross_origin, CORS
 import json
-from utils.github import manageGitHub, getGitCredentials
-from models import db
+from models import db, Person
 from uuid import uuid4
 import random
 import re
 import pdb
+from tasks.tasks import deletePersonTask, addPersonTask
 from seeders.insert_person_records import InsertFakeData
 from celery import group
 from os import path, mkdir
@@ -23,30 +23,18 @@ def after_request(response):
     return response
 
 
-def getUsedDeploymentPorts():
-   """  port_in_use = db.session.query(Deployments).filter(
-        Deployments.status == 'complete').all()
-    ports = []
-    for i in port_in_use:
-        ports.append(int(i.destination_port))
-    found = None
-    rand_number = None
-    while (found is None):
-        rand_number = random.randint(50000, 55000)
-        if rand_number not in ports:
-            found = 1 """
-   rand_number = random.randint(0,10)
-   return rand_number
-
-
-
 @my_blueprint.route('/', methods=['GET']) # Registry of all matters
-def getGitRepos():
+def index():
    return jsonify({"result": "success"})
 
 @my_blueprint.route('/person', methods=['GET']) # Return Person Panel
 def persons():
-   return jsonify({"result": "success"})
+   persons = db.session.query(Person).all()
+   data = []
+   for person in persons:
+      data.append(person.to_dict(show=['id','first_name','middle_name','last_name','egn','eik','fpn']))
+   print(data)
+   return jsonify(data)
 
 @my_blueprint.route('/exitdocument', methods=['GET'])
 def exitdocuments():
@@ -55,10 +43,21 @@ def exitdocuments():
 @my_blueprint.route('/enterdocument', methods=['GET'])
 def enterdocuments():
    return jsonify({"result": "success"})
-
-@my_blueprint.route('/seedPersons', methods=['POST'])
-def seedData():
+@my_blueprint.route('/person', methods=['POST'])
+def addperson():
+    result = False
+    if (request.get_data()):
+        params = json.loads(request.get_data())
+        result = addPersonTask(params)
+    return jsonify({"result": result})
+@my_blueprint.route('/person/<id>', methods=['DELETE'])
+def deletepersons(id):
+    result = 0
+    result = deletePersonTask(id)
+    print(result)
+    return jsonify({"result":result})
+@my_blueprint.route('/seedpersons', methods=['GET'])
+def seedPersons():
     faker = InsertFakeData()
     persons = faker.create10Persons()
-    pdb.set_trace()
     return jsonify({"result": persons})

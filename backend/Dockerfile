@@ -1,4 +1,4 @@
-FROM debian:12.2 as python-runtime 
+FROM debian:12 as python-runtime 
 #stage 1 - install python 
 RUN apt-get update && apt-get upgrade -y 
 RUN apt-get install python3 python3-venv python3-pip -y
@@ -13,7 +13,7 @@ WORKDIR $APP_DIR
 RUN pip install -r requirements.txt
 
 #stage 2 - install docker 
-FROM debian:12.2 as docker-build 
+FROM debian:12 as docker-build 
 RUN apt-get update && apt-get upgrade -y && apt-get install curl apt-transport-https ca-certificates gnupg curl -y 
 RUN install -m 0755 -d /etc/apt/keyrings
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -25,7 +25,7 @@ RUN echo \
 RUN apt-get update && apt-get install -y docker-ce
 
 #stage 3 - build the image 
-FROM debian:12.2 as main-image
+FROM debian:12 as main-image
 COPY --from=python-runtime /opt/venv /opt/venv
 COPY --from=docker-build /usr/bin/docker /usr/bin/docker
 COPY --from=docker-build /usr/libexec/docker/cli-plugins/docker-buildx /usr/libexec/docker/cli-plugins/docker-buildx

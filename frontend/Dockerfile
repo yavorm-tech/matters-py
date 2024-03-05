@@ -5,7 +5,7 @@ COPY ./package.json $APP_DIR/package.json
 COPY ./entrypoint.sh $APP_DIR/entrypoint.sh
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 WORKDIR "${APP_DIR}"
-#RUN npm install -g pm2 
+RUN npm install -g pm2 
 RUN npm install
 RUN chmod +x entrypoint.sh
 RUN mkdir -p /var/log/frontend

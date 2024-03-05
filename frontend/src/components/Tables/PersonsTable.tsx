@@ -1,64 +1,132 @@
 import React, { useState } from 'react';
-import {getPersons} from '../../apis';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useQuery } from '@tanstack/react-query';
+import {Dropdown} from "flowbite-react";
+import axios from "axios";
+import {get_persons_url, delete_persons_url} from "../../apis/util.tsx";
 
-type Deployment = {
+type Person = {
   id: BigInteger,
-  container_name: String,
-  destination_port: BigInt,
-  repo_id: BigInt,
-  status: String,
-  build_status: String,
-  public_url: String, 
-  private_url: String,
-  created_at: String,
-
+  first_name: String,
+  middle_name: String,
+  last_name: String,
+  egn: BigInt,
+  eik: BigInt,
+  ssn: BigInt
+  fpn: BigInt,
   action: () => {}
 }
-const columnHelper = createColumnHelper<Deployment>();
+
+function IndeterminateCheckbox({
+                                 indeterminate,
+                                 className = '',
+                                 ...rest
+                               }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+  const ref = React.useRef<HTMLInputElement>(null!)
+
+  React.useEffect(() => {
+    if (typeof indeterminate === 'boolean') {
+      ref.current.indeterminate = !rest.checked && indeterminate
+    }
+  }, [ref, indeterminate])
+
+  return (
+      <input
+          type="checkbox"
+          ref={ref}
+          className={className + ' cursor-pointer'}
+          {...rest}
+      />
+  )
+}
+
+const columnHelper = createColumnHelper<Person>();
+
 
 
 export const PersonsTable = () => {
-  const [users, setUsers] = useState([]);
+  const [persons, setPersons] = useState([]);
+  const [globalFilter, setGlobalFilter] = React.useState('')
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [inProgress, setInProgress] = React.useState(false)
+
+
+  // const deletePersons = () => {
+  //   let cur_records = table.getSelectedRowModel().flatRows
+  //   setInProgress(false)
+  // }
+  const deletePersons = () => {
+    let cur_records = table.getSelectedRowModel().flatRows
+    setInProgress(true)
+    cur_records.forEach( (elem) => {
+      axios.delete(`${delete_persons_url}/${elem.original.id}`).then(
+          (res) => {
+            console.log("deleted record with id " + elem.original.id)
+          }
+      )
+    })
+    table.resetRowSelection()
+    setInProgress(false)
+
+  }
+  const executeAShell = () => {
+    console.log("execute a shell into selected containers")
+  }
 
   const columns = [
+    columnHelper.accessor('select',{
+      header: ({ table }) => (
+          <IndeterminateCheckbox
+              {...{
+                checked: table.getIsAllRowsSelected(),
+                indeterminate: table.getIsSomeRowsSelected(),
+                onChange: table.getToggleAllRowsSelectedHandler(),
+              }}
+          />
+      ),
+      cell: ({ row }) => (
+          <div className="px-1">
+            <IndeterminateCheckbox
+                {...{
+                  checked: row.getIsSelected(),
+                  indeterminate: row.getIsSomeSelected(),
+                  onChange: row.getToggleSelectedHandler(),
+                }}
+            />
+          </div>
+      ),
+    }),
     columnHelper.accessor('id',{
       cell: info => info.getValue()
     }),
-    columnHelper.accessor(row => row.container_name,{
-      id: 'container_name',
+    columnHelper.accessor(row => row.first_name,{
+      id: 'first_name',
       cell: info => info.getValue(),
-      header: () => <span>Container name</span>
+      header: () => <span>First name</span>
     }),
-    columnHelper.accessor('destination_port', {
-      header: () => 'Destination port',
+    columnHelper.accessor('middle_name', {
+      header: () => 'Middle Name',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
       
     }),
-    columnHelper.accessor('repo_id', {
-      header: () => 'Repository',
+    columnHelper.accessor('last_name', {
+      header: () => 'Last Name',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
     }),
-    columnHelper.accessor('status', {
-      header: () => 'Status',
+    columnHelper.accessor('egn', {
+      header: () => 'EGN',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
     }),
-    columnHelper.accessor('public_url', {
-      header: () => 'Public url',
+    columnHelper.accessor('eik', {
+      header: () => 'EIK/Bulstat',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
     }),
-    columnHelper.accessor('private_url', {
-      header: () => 'Private url',
-      cell: info => info.renderValue(),
-      footer: info => info.column.id,
-    }),
-    columnHelper.accessor('created_at', {
-      header: () => 'Created at',
+    columnHelper.accessor('fpn', {
+      header: () => 'Foreign Person №',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
     }),
@@ -84,30 +152,49 @@ export const PersonsTable = () => {
 
 
   React.useEffect(() => {
-     
+
   }, []);
 
   const {isLoading, error, data, isFetched} = useQuery({
-    queryKey: ['users'],
-    queryFn: () => getPersons(),
+    queryKey: ['persons'],
+    queryFn: () => fetch(get_persons_url).then( (res) => res.json()),
+    refetchInterval: 30000,
   })
   if(data){
     console.log(data);
   }else{
     console.log('empty');
-  
   }
   const table = useReactTable({
     data, 
     columns, 
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
+    state: {
+      rowSelection: rowSelection
+    },
+    onRowSelectionChange: setRowSelection,
+    meta: {
+      removeRow: (rowIndex: number) => {
+        const setFilterFunc = (old: Person[]) =>
+            old.filter((_row: Student, index: number) => index !== rowIndex);
+        setPersons(setFilterFunc);
+        setOriginalData(setFilterFunc);
+      },
+    }
   })
-  if (isLoading || !users){
+  if (isLoading || !persons){
     return <div>Loading...</div>
+  }
+  if(inProgress){
+    return <div>Deleting...</div>
   }
   console.log(table.getRowModel())
   return (
-    <div className="">
+    <div className="w-screen">
+      <Dropdown label="Mass Actions" dismissOnClick={true} >
+        <Dropdown.Item onClick={ () => deletePersons() }>Delete</Dropdown.Item>
+      </Dropdown>
       <table className="border-collapse">
         <thead>
           {table.getHeaderGroups().map(headerGroup => (

@@ -8,7 +8,7 @@ class InsertFakeData:
     def create10Persons(self):
         for _ in range(10):
             PersonRecord = Person(first_name=self.faker.first_name(), middle_name=self.faker.first_name(), last_name=self.faker.last_name(),
-                    egn = self.faker.ssn().replace('-',''), eik = self.faker.passport_number().replace('-',''), fpn=self.faker.isbn10().replace('-',''))
+                    egn = self.faker.ssn().replace('-',''), eik = self.faker.passport_number().replace('-',''), fpn=self.faker.ssn().replace('-',''))
             db.session.add(PersonRecord)
         try:
             db.session.commit()
