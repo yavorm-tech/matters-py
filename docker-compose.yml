@@ -30,7 +30,6 @@ services:
     volumes:
       - "${BACKEND_VOL}:/opt/backend"
         #      - git-deployments:/tmp
-      - nginx-confs:/nginx-confs
   redis:
     container_name: "${COMPOSE_PROJECT_NAME}-redis"
     image: "${REDIS_IMAGE}"
@@ -90,10 +89,3 @@ networks:
       driver: default
       config:
         - subnet: ${DEPLOYMENT_NETWORK}
-volumes:
-  nginx-confs:
-    driver: local
-    driver_opts:
-      type: bind
-      o: bind
-      device: /opt/nginx-confs
