@@ -23,26 +23,32 @@ def after_request(response):
     return response
 
 
-@my_blueprint.route('/', methods=['GET']) # Registry of all matters
+@my_blueprint.route('/', methods=['GET'])  # Registry of all matters
 def index():
-   return jsonify({"result": "success"})
+    return jsonify({"result": "success"})
 
-@my_blueprint.route('/person', methods=['GET']) # Return Person Panel
+
+@my_blueprint.route('/person', methods=['GET'])  # Return Person Panel
 def persons():
-   persons = db.session.query(Person).all()
-   data = []
-   for person in persons:
-      data.append(person.to_dict(show=['id','first_name','middle_name','last_name','egn','eik','fpn']))
-   print(data)
-   return jsonify(data)
+    persons = db.session.query(Person).all()
+    data = []
+    for person in persons:
+        data.append(person.to_dict(
+            show=['id', 'first_name', 'middle_name', 'last_name', 'egn', 'eik', 'fpn']))
+    print(data)
+    return jsonify(data)
+
 
 @my_blueprint.route('/exitdocument', methods=['GET'])
 def exitdocuments():
-   return jsonify({"result": "success"})
+    return jsonify({"result": "success"})
+
 
 @my_blueprint.route('/enterdocument', methods=['GET'])
 def enterdocuments():
-   return jsonify({"result": "success"})
+    return jsonify({"result": "success"})
+
+
 @my_blueprint.route('/person', methods=['POST'])
 def addperson():
     result = False
@@ -50,12 +56,16 @@ def addperson():
         params = json.loads(request.get_data())
         result = addPersonTask(params)
     return jsonify({"result": result})
+
+
 @my_blueprint.route('/person/<id>', methods=['DELETE'])
 def deletepersons(id):
     result = 0
     result = deletePersonTask(id)
     print(result)
-    return jsonify({"result":result})
+    return jsonify({"result": result})
+
+
 @my_blueprint.route('/seedpersons', methods=['GET'])
 def seedPersons():
     faker = InsertFakeData()

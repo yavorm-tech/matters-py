@@ -1,14 +1,14 @@
 import React,{FC, useState, useRef, useEffect} from 'react';
 import axios from 'axios';
-import { Button } from 'flowbite-react';
+import {Button, Label} from 'flowbite-react';
 import { Circles } from 'react-loading-icons';
 import Oval from 'react-loading-icons/dist/esm/components/oval';
 import {defineConfig} from 'vite'
-import {post_persons_url} from "../../apis/util.tsx";
 import ReactDOM from "react-dom/client";
 import {useForm} from "@tanstack/react-form";
 import { zodValidator} from "@tanstack/zod-form-adapter";
 import {z} from 'zod'
+import {Checkbox} from "flowbite-react";
 /*TODO add     git_url = "git@github.com:Payarc/payarc3.0.git" */
 
 //const test = getGitRepos().then( (res) => console.log(res)).catch( (error) => console.log(error));
@@ -17,6 +17,7 @@ import {z} from 'zod'
 interface AddPersonFormProps {
     test: string,
     action(): void
+    onSubmit(e?): void
 }
 
 export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
@@ -29,11 +30,12 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
             egn: '',
             eik: '',
             fpn: '',
+            is_jurisdict_person: false
         },
         onSubmit: async ({ value }) => {
             // Do something with form data
             let headers = {"Content-Type":"application/json"}
-            axios.post(post_persons_url, {
+            axios.post('/api/person', {
                 headers: headers,
                 fname: value.fName,
                 mname: value.mName,
@@ -68,7 +70,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                       onSubmit={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          void form.handleSubmit();
+                          props.onSubmit(e);
                       }}
                 >
                     <div className="mb-2 block ">
@@ -102,6 +104,61 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                                 </div>
                             )}
                         />
+                    </div>
+
+                    <div className="mb-2 block ">
+                        <form.Field
+                            name="is_jurisdict_person"
+                            children={(field) => (
+                                <div className="flex gap-2">
+                                    <label htmlFor={field.name} className="w-46">
+                                        Is Jurisdict person
+                                        <p>{field.state.value}</p>
+                                        {field.state.value ?
+                                        <Checkbox className="w-6 h-6"
+                                                  id={field.name}
+                                                  checked
+                                                  value={field.state.is_jurisdict_person}
+                                                  onChange={(e) => {
+                                                      console.log(e)
+                                                  }}
+
+                                        /> :  <Checkbox className="w-6 h-6"
+                                                        id={field.name}
+                                                        value={field.state.is_jurisdict_person}
+                                                        onChange={(e) => {
+                                                            console.log(e)
+                                                        }}
+
+                                            />
+                                        }
+                                    </label>
+                                </div>
+                            )}/>
+
+
+                    </div>
+                    <div className="mb-2 block ">
+                        <form.Field
+                            name="isForeignPerson"
+                            children={(field) => (
+                                <div className="flex gap-2">
+                                    <label htmlFor={field.name} className="w-46">
+                                        Is Foreign person
+                                        {}
+                                        <Checkbox className="w-6 h-6"
+                                                  checked
+                                                  id={field.name}
+                                                  onChange={(e) => {
+                                                      console.log(e)
+                                                  }}
+
+                                        />
+                                    </label>
+                                </div>
+                            )}/>
+
+
                     </div>
                     <div className="mb-2 block ">
                         <form.Field
@@ -197,6 +254,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                         />
                     </div>
                     <div className="mb-2 block ">
+
                         <form.Field
                             name="eik"
                             validatorAdapter={zodValidator}

@@ -12,16 +12,16 @@ import shutil
 import boto3
 from models import db
 from celery.contrib.abortable import AbortableTask
+import logging
+logger = logging.getLogger()
 
 docker_host = os.environ.get("DOCKER_HOST")
-
-
-
 
 
 @shared_task(name='Add two numbers', bind=True, base=AbortableTask)
 def add(self, x, y):
     return x + y
+
 
 @shared_task(name='delete person', bind=True, base=AbortableTask)
 def deletePersonTask(self, id):
@@ -30,24 +30,27 @@ def deletePersonTask(self, id):
         Person.query.filter_by(id=id).delete()
         db.session.commit()
     except Exception as e:
-        print(e)
+        logger.error("Error deleting person")
+        logger.error(e)
         result = 1
-    return(result)
+    return (result)
+
+
 @shared_task(name="add person", bind=True, base=AbortableTask)
-def addPersonTask(self,params):
-    f_name=params['fname']
-    m_name=params['mname']
-    l_name=params['lname']
+def addPersonTask(self, params):
+    f_name = params['fname']
+    m_name = params['mname']
+    l_name = params['lname']
     egn = params['egn']
     eik = params['eik']
     fpn = params['fpn']
     result = False
     try:
-        new_person = Person(first_name=f_name, middle_name=m_name, last_name=l_name, egn=egn, eik=eik, fpn=fpn)
+        new_person = Person(first_name=f_name, middle_name=m_name,
+                            last_name=l_name, egn=egn, eik=eik, fpn=fpn)
         db.session.add(new_person)
         db.session.commit()
         result = True
     except Exception as e:
         print(e)
     return result
-
