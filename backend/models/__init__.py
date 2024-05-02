@@ -143,22 +143,28 @@ class ExecutiveCase(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, index=True)
     executive_act = db.relationship('ExecutiveAct', backref='executive_act',
-                             lazy='dynamic', cascade="all, delete-orphan")
+                                    lazy='dynamic', cascade="all, delete-orphan")
     enter_document = db.relationship('EnterDocument', backref='enter_document',
-                                lazy='dynamic', cascade="all, delete-orphan")
+                                     lazy='dynamic', cascade="all, delete-orphan")
     exit_document = db.relationship('ExitDocument', backref='exit_document',
-                                lazy='dynamic', cascade="all, delete-orphan")
+                                    lazy='dynamic', cascade="all, delete-orphan")
     _default_fields = [
         'number'
     ]
 
+
 class ExecutiveAct(BaseModel):
     __tablename__ = 'executive_act'
     id = db.Column(db.Integer, primary_key=True)
-    exec_act_person = db.Column(db.Integer, db.ForeignKey('executive_act_person.id')) # Person
-    monetary_claim_id = db.Column(db.Integer, db.ForeignKey('monetary_claims.id')) # MonetaryClaims
-    exec_case_id = db.Column(db.Integer, db.ForeignKey('executive_case.id')) # ExecutiveCase
-    exec_act_person = db.relationship('ExecutiveActPerson',backref="executive_act_person", lazy="dynamic", cascade="all, delete-orphan")
+    exec_act_person = db.Column(db.Integer, db.ForeignKey(
+        'executive_act_person.id'))  # Person
+    monetary_claim_id = db.Column(db.Integer, db.ForeignKey(
+        'monetary_claims.id'))  # MonetaryClaims
+    exec_case_id = db.Column(db.Integer, db.ForeignKey(
+        'executive_case.id'))  # ExecutiveCase
+    exec_act_person = db.relationship(
+        'ExecutiveActPerson', backref="executive_act_person", lazy="dynamic", cascade="all, delete-orphan")
+
 
 class ExecutiveActPerson(BaseModel):
     __tablename__ = 'executive_act_person'
@@ -171,50 +177,61 @@ class ExecutiveActPerson(BaseModel):
     _default_fields = [
     ]
 
+
 class Person(BaseModel):
     __tablename__ = 'person'
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), index=True, default=None, nullable=True)
-    middle_name = db.Column(db.String(50), index=True, default=None, nullable=True)
-    last_name = db.Column(db.String(50), index=True, default=None, nullable=True)
+    first_name = db.Column(db.String(50), index=True,
+                           default=None, nullable=True)
+    middle_name = db.Column(db.String(50), index=True,
+                            default=None, nullable=True)
+    last_name = db.Column(db.String(50), index=True,
+                          default=None, nullable=True)
     egn = db.Column(db.Integer, index=True, default=None, nullable=True)
     eik = db.Column(db.String(13), index=True, default=None, nullable=True)
     fpn = db.Column(db.Integer, index=True, default=None)
-    executive_act_person = db.relationship('ExecutiveActPerson', backref='person_executive_act_person', lazy='dynamic', cascade="all, delete-orphan")
-    person_property = db.relationship('PersonProperty', backref='person_property', lazy='dynamic', cascade="all, delete-orphan")
+    executive_act_person = db.relationship(
+        'ExecutiveActPerson', backref='person_executive_act_person', lazy='dynamic', cascade="all, delete-orphan")
+    person_property = db.relationship(
+        'PersonProperty', backref='person_property', lazy='dynamic', cascade="all, delete-orphan")
     _default_fields = [
-            "first_name",
-            "middle_name",
-            "last_name",
-            "egn",
-            "eik",
-            "fpn",
-        ]
+        "first_name",
+        "middle_name",
+        "last_name",
+        "egn",
+        "eik",
+        "fpn",
+    ]
+
+
 class PersonProperty(BaseModel):
     __tablename__ = 'person_property'
-    def __init__(self):
-        pass
+
     id = db.Column(db.Integer, primary_key=True)
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
     title = db.Column(db.String(50), index=True)
-    type = db.Column(db.Integer, index=True) # Движимо, недвижимо
-    description = db.Column(db.String(5000), index=True) # Подробно описание, за недвижимо имущество може да е повече символи.
+    type = db.Column(db.Integer, index=True)  # Движимо, недвижимо
+    # Подробно описание, за недвижимо имущество може да е повече символи.
+    description = db.Column(db.String(5000), index=True)
+
 
 class MonetaryClaims(BaseModel):
     __tablename__ = 'monetary_claims'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
-    descr = db.Column(db.String(64), index=True )
+    descr = db.Column(db.String(64), index=True)
     ammount = db.Column(db.String(15), index=True)
     executive_act_monetary_claims = db.relationship('ExecutiveActMonetaryClaims', backref='executive_act_monetary_claims',
-                lazy='dynamic', cascade="all, delete-orphan")
+                                                    lazy='dynamic', cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.now)
 
+
 class ExecutiveActMonetaryClaims(BaseModel):
-    __tablename__='executive_act_monetary_claims'
+    __tablename__ = 'executive_act_monetary_claims'
     id = db.Column(db.Integer, primary_key=True)
     exec_act_id = db.Column(db.Integer, db.ForeignKey('executive_act.id'))
-    monetary_claim_id = db.Column(db.Integer, db.ForeignKey('monetary_claims.id'))
+    monetary_claim_id = db.Column(
+        db.Integer, db.ForeignKey('monetary_claims.id'))
     created_at = db.Column(db.DateTime, default=datetime.now)
 
 
@@ -224,17 +241,22 @@ class EnterDocument(BaseModel):
     title = db.Column(db.String(64), index=True, nullable=True)
     exec_case_id = db.Column(db.Integer, db.ForeignKey('executive_case.id'))
 
+
 class EnterDocumentType(BaseModel):
     __tablename__ = 'enter_document_type'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(64), index=True)
-    template_id = db.Column(db.Integer, db.ForeignKey('enter_document_template.id'))
+    template_id = db.Column(
+        db.Integer, db.ForeignKey('enter_document_template.id'))
+
 
 class EnterDocumentTemplate(BaseModel):
     __tablename__ = 'enter_document_template'
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.String, index=True)
-    enter_doc_template = db.relationship('EnterDocumentType', backref='enter_document_type_template', lazy='dynamic', cascade="all, delete-orphan")
+    enter_doc_template = db.relationship(
+        'EnterDocumentType', backref='enter_document_type_template', lazy='dynamic', cascade="all, delete-orphan")
+
 
 class ExitDocument(BaseModel):
     __tablename__ = 'exit_document'
@@ -242,15 +264,19 @@ class ExitDocument(BaseModel):
     title = db.Column(db.String(64), index=True, nullable=True)
     exec_case_id = db.Column(db.Integer, db.ForeignKey('executive_case.id'))
 
+
 class ExitDocumentType(BaseModel):
     __tablename__ = 'exit_document_type'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(64), index=True)
-    template_id = db.Column(db.Integer, db.ForeignKey('exit_document_template.id'))
+    template_id = db.Column(
+        db.Integer, db.ForeignKey('exit_document_template.id'))
+
 
 class ExitDocumentTemplate(BaseModel):
     __tablename__ = 'exit_document_template'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
     path = db.Column(db.String, index=True)
-    exit_doc_template = db.relationship('ExitDocumentType', backref='exit_document_type_template', lazy='dynamic', cascade="all, delete-orphan")
+    exit_doc_template = db.relationship(
+        'ExitDocumentType', backref='exit_document_type_template', lazy='dynamic', cascade="all, delete-orphan")

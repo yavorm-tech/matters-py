@@ -78,20 +78,24 @@ function Example() {
 function App() {
 
   return (
-    <div className="relative w-full h-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-black">
-      <div className="absolute top-0 right-0"><DarkThemeToggle /></div>
-      
-        <ul className="flex  items-center justify-center text-gray-900 dark:text-white w-full ">
-          <li><Link to="/person" className="flex p-3" ><MdRocketLaunch /> Persons</Link></li>
-          <li><Link to="/personproperty" className="flex p-3"><IoMdGitCommit />Person property</Link></li>
-        </ul>
+    <section className="bg-gray-50 dark:bg-gray-900 px-4 pt-6">
+      <div className="absolute top-0 right-0 z-10"><DarkThemeToggle /></div>      
+      <div className="mx-auto  px-4 lg:px-12 w-full">
 
-    <Routes>
-      <Route path="/person" element={<PersonPanel />} />
-      <Route path="/personproperty" element={<PersonPropertyPanel />} />
-    </Routes>
-
-    </div>
+        <nav className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden mb-2">
+          <ul className="flex  items-center justify-center text-gray-900 dark:text-white w-full ">
+            <li><Link to="/person" className="flex p-3" ><MdRocketLaunch /> Persons</Link></li>
+            <li><Link to="/person-property" className="flex p-3"><IoMdGitCommit />Person property</Link></li>
+          </ul>
+        </nav>
+        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+          <Routes>
+            <Route path="/person" element={<PersonPanel />} />
+            <Route path="/person-property" element={<PersonPropertyPanel />} />
+          </Routes>
+        </div>
+      </div>
+    </section>
   )
 }
 

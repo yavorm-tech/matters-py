@@ -6,7 +6,7 @@ import pdb
 import traceback
 from python_on_whales import docker
 from python_on_whales import exceptions as POWExceptions
-from models import db, Person
+from models import db, Person, PersonProperty
 import sys
 import shutil
 import boto3
@@ -31,6 +31,19 @@ def deletePersonTask(self, id):
         db.session.commit()
     except Exception as e:
         logger.error("Error deleting person")
+        logger.error(e)
+        result = 1
+    return (result)
+
+
+@shared_task(name='delete person property', bind=True, base=AbortableTask)
+def deletePersonPropertyTask(self, id):
+    result = 0
+    try:
+        PersonProperty.query.filter_by(id=id).delete()
+        db.session.commit()
+    except Exception as e:
+        logger.error("Error deleting person property")
         logger.error(e)
         result = 1
     return (result)

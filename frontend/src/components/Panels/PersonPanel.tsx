@@ -60,7 +60,6 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
           //table.resetRowSelection() // this might be a problem
           return (
             console.log(res),
-            queryClient.unmount(),
             persons.refetch()
           )
         })
@@ -71,14 +70,15 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
     const onSubmit = (rec) => {
         // Do something with form data
         let headers = {"Content-Type":"application/json"}
+        const {fName, mName, lName,egn,eik,fpn} = rec.target
         axios.post('/api/person', {
             headers: headers,
-            fname: rec.target.fName.value,
-            mname: rec.target.mName.value,
-            lname: rec.target.lName.value,
-            egn: rec.target.egn.value,
-            eik: rec.target.eik.value,
-            fpn: rec.target.fpn.value,
+            fname: fName.value,
+            mname: mName.value,
+            lname: lName.value,
+            egn: egn.value,
+            eik: eik.value,
+            fpn: fpn.value,
         }).then( (res) => {
           if(res.status == 200){
             setOpenModal('undefined')
@@ -98,7 +98,7 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
       refetchOnWindowFocus: true,
     })
     return (
-        <>
+        <div>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
             <Modal.Header><div className="text-blue-700 "> Add new person</div></Modal.Header>
         <Modal.Body>
@@ -115,6 +115,6 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
 
           />: ''
           }
-        </>
+        </div>
     )
 }

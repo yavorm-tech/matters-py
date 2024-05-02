@@ -13,12 +13,8 @@ from uuid import uuid4
 from celery import Task
 from celery.contrib.abortable import AbortableTask
 from celery.worker.request import Request
-from utils.github import getGitCredentials
 from celery.utils.log import get_task_logger
 from celery import shared_task
-from utils.files import getUsedDeploymentPorts
-from utils.awss3 import GetS3Objects
-from models import db, Deployments, DeploymentStages
 from utils.substitudeinfile import substitueStringInFile
 from utils.ssh import restartNginx
 
