@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import {FaTrash, FaEdit} from 'react-icons/fa'
 import { 
   createColumnHelper, 
   flexRender, 
@@ -26,6 +27,7 @@ import { useQuery } from '@tanstack/react-query';
 import {Dropdown, Button} from "flowbite-react";
 import axios from "axios";
 import {get_persons_url, delete_persons_url} from "../../apis/util.tsx";
+import { Modal } from 'flowbite-react';
 
 declare module '@tanstack/react-table' {
   interface FilterFns {
@@ -211,12 +213,38 @@ export const PersonsTable = (props) => {
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [rowSelection, setRowSelection] = React.useState({})
   const [inProgress, setInProgress] = React.useState(false)
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-    )
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
 
 
-
+    const ConfirmationBox = () => {
+      return(
+        <div>
+          <Modal show={confirmDeleteModal} onClose={() => setConfirmDeleteModal(false)}>
+          <Modal.Body>
+            <div className="space-y-6">
+              <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400 text-center" >
+                Are you sure you want to delete the selected records ?
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="flex flex-row justify-evenly">
+            <Button onClick={() => {
+              table.toggleAllRowsSelected(false)
+              let selectedRows = table.getSelectedRowModel().flatRows
+              props.deleteButtonMethod(selectedRows)
+              setConfirmDeleteModal(false)       
+              }}>Yes</Button>
+            <Button color="gray" onClick={() => {
+              table.toggleAllRowsSelected(false)
+              setConfirmDeleteModal(false)       
+              }}>
+              No
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    )}
   // const deletePersons = () => {
   //   let cur_records = table.getSelectedRowModel().flatRows
   //   setInProgress(false)
@@ -251,7 +279,7 @@ export const PersonsTable = (props) => {
           />
       ),
       cell: ({ row }) => (
-          <div className="px-1">
+          <div className="">
             <IndeterminateCheckbox
                 {...{
                   checked: row.getIsSelected(),
@@ -356,25 +384,36 @@ export const PersonsTable = (props) => {
   // console.log(table.getRowModel())
   // console.log(props.data)
   return (
-    <div className="w-full">
-      <div className="flex">
-          <props.newButton action={props.newButtonMethod} color='green'>New </props.newButton>
-          <div>
+    <div className="overflow-x-auto w-full">
+      <div className="flex items-center justify-between w-full pb-3 pt-3">
+
+        <div className="flex flex-row items-left gap-4">
         <DebouncedInput
           value={globalFilter ?? ''}
           onChange={value => setGlobalFilter(String(value))}
-          className="p-2 font-lg shadow border border-block"
+          className="p-2 font-lg shadow border border-block w-96"
           placeholder="Search all columns..."
         />
+      
+          <Button  onClick={() => {
+            setConfirmDeleteModal(true)       
+           
+          }}><FaTrash /></Button>
+
+          <Button onClick={() => props.editButtonMethod(table.getSelectedRowModel().rowsById)}><FaEdit /></Button>
+
+          </div>
+          <Button onClick={() => props.newButtonMethod()} color='green'>New </Button>
       </div>
-          <props.deleteButton action={() => props.deleteButtonMethod(table.getSelectedRowModel().flatRows)}>Delete Person/s</props.deleteButton>
-      </div>
-      <table className="border-separate w-11/12 border-spacing-1 table-auto">
-        <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id} className="bg-slate-200 text-lg">
+      <ConfirmationBox />
+      <table className="w-full text-sm text-left text-gray-500  dark:text-gray-200 ">
+        <thead className="text-xs text-gray-700  bg-gray-50 dark:bg-teal-900 dark:text-gray-400">
+          {table.getHeaderGroups().map(headerGroup => {
+            console.log(headerGroup) 
+            return (
+            <tr key={headerGroup.id} className="bg-slate-200 text-lg dark:bg-teal-900 dark:text-gray-200 ">
               {headerGroup.headers.map(header => (
-                <th className="" key={header.id}>
+                <th key={header.id}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -384,11 +423,11 @@ export const PersonsTable = (props) => {
                 </th>
               ))}
             </tr>
-          ))}
+          )})}
         </thead>
         <tbody className="border">
           {table.getRowModel().rows.map(row => (
-            <tr className="even:bg-gray-100 odd:bg-white" key={row.id} >
+            <tr className="even:bg-gray-100 odd:bg-white dark:even:bg-neutral-950 dark:odd:bg-black" key={row.id} >
               {row.getVisibleCells().map(cell => (
                 <td className="w-72" key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -398,11 +437,10 @@ export const PersonsTable = (props) => {
           ))}
         </tbody>
       </table>
-      <div className="h-4" />
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center justify-between pt-3 pb-3">
       <Button onClick={ () => table.previousPage()}
-        disabled={!table.getCanPreviousPage()} > Previous</Button>
-      <span className="flex items-center gap-1">
+        disabled={!table.getCanPreviousPage()} color="green"> Previous</Button>
+      <span className="flex items-center gap-1 dark:text-white">
           <div>Page</div>
           <strong>
             {table.getState().pagination.pageIndex + 1} of{' '}
@@ -410,7 +448,7 @@ export const PersonsTable = (props) => {
           </strong>
       </span>
       <Button onClick={ () => table.nextPage()}
-        disabled={!table.getCanNextPage()} > Next</Button>
+        disabled={!table.getCanNextPage()} color="green" > Next</Button>
       </div>
     </div>
   )

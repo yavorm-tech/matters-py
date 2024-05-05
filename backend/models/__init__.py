@@ -193,7 +193,7 @@ class Person(BaseModel):
     executive_act_person = db.relationship(
         'ExecutiveActPerson', backref='person_executive_act_person', lazy='dynamic', cascade="all, delete-orphan")
     person_property = db.relationship(
-        'PersonProperty', backref='person_property', lazy='dynamic', cascade="all, delete-orphan")
+        'PersonProperty', backref='person_property', lazy='dynamic', cascade="all, delete")
     _default_fields = [
         "first_name",
         "middle_name",
@@ -213,6 +213,14 @@ class PersonProperty(BaseModel):
     type = db.Column(db.Integer, index=True)  # Движимо, недвижимо
     # Подробно описание, за недвижимо имущество може да е повече символи.
     description = db.Column(db.String(5000), index=True)
+
+    _default_fields = [
+        "id",
+        "person_id",
+        "title",
+        "type",
+        "description",
+    ]
 
 
 class MonetaryClaims(BaseModel):

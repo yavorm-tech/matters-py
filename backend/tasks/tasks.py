@@ -25,15 +25,14 @@ def add(self, x, y):
 
 @shared_task(name='delete person', bind=True, base=AbortableTask)
 def deletePersonTask(self, id):
-    result = 0
     try:
         Person.query.filter_by(id=id).delete()
         db.session.commit()
+        return True
     except Exception as e:
-        logger.error("Error deleting person")
+        logger.error(f"Error deleting person with id {id}")
         logger.error(e)
-        result = 1
-    return (result)
+        return (e)
 
 
 @shared_task(name='delete person property', bind=True, base=AbortableTask)

@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
+.footer {
+  height: 150px;
+}
 a {
   font-weight: 500;
   color: #646cff;

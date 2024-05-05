@@ -41,12 +41,13 @@ type Property = {
   title: String,
   type: String,
   description: String,
+  egn: String,
   action: () => {}
 }
 
 
 
-function IndeterminateCheckbox({
+export function IndeterminateCheckbox({
                                  indeterminate,
                                  className = '',
                                  ...rest
@@ -217,15 +218,14 @@ export const PropertyTable = (props) => {
     return(
       <div>
         <Modal show={confirmDeleteModal} onClose={() => setConfirmDeleteModal(false)}>
-        <Modal.Header>Delete Dialog</Modal.Header>
         <Modal.Body>
           <div className="space-y-6">
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete record/s
+            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400 text-center" >
+              Are you sure you want to delete the selected records ?
             </p>
           </div>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="flex flex-row justify-evenly">
           <Button onClick={() => {
             table.toggleAllRowsSelected(false)
             let selectedRows = table.getSelectedRowModel().flatRows
@@ -241,34 +241,12 @@ export const PropertyTable = (props) => {
         </Modal.Footer>
       </Modal>
     </div>
-  )
-}
-
-  // const deletePersons = () => {
-  //   let cur_records = table.getSelectedRowModel().flatRows
-  //   setInProgress(false)
-  // }
-  const deletePersons = () => {
-    let cur_records = table.getSelectedRowModel().flatRows
-    setInProgress(true)
-    cur_records.forEach( (elem) => {
-      axios.delete(`${delete_persons_url}/${elem.original.id}`).then(
-          (res) => {
-            console.log("deleted record with id " + elem.original.id)
-          }
-      )
-    })
-    table.resetRowSelection()
-    setInProgress(false)
-
-  }
-  const executeAShell = () => {
-    console.log("execute a shell into selected containers")
-  }
+  )}
 
   const columns = [
     columnHelper.accessor('select',{
       header: ({ table }) => (
+          <div className="w-6">
           <IndeterminateCheckbox
               {...{
                 checked: table.getIsAllRowsSelected(),
@@ -276,9 +254,10 @@ export const PropertyTable = (props) => {
                 onChange: table.getToggleAllRowsSelectedHandler(),
               }}
           />
+          </div>
       ),
       cell: ({ row }) => (
-          <div className="px-1">
+          <div className="">
             <IndeterminateCheckbox
                 {...{
                   checked: row.getIsSelected(),
@@ -290,8 +269,8 @@ export const PropertyTable = (props) => {
       ),
     }),
     columnHelper.accessor('id',{
-      header: () => "Id",
-      cell: info => <div>{info.getValue()}</div>
+      header: () => <div className="w-4">Id</div>,
+      cell: info => <div>{info.getValue()}</div>,
     }),
     columnHelper.accessor('title',{
       id: 'title',
@@ -300,12 +279,17 @@ export const PropertyTable = (props) => {
     }),
     columnHelper.accessor('type', {
       header: () => 'Type',
-      cell: info => info.renderValue(),
+      cell: info => <> {info.renderValue() == '0' ? "Movable" : 'Real Estate'}</>,
       footer: info => info.column.id,
       
     }),
     columnHelper.accessor('description', {
       header: () => 'Description',
+      cell: info => info.renderValue(),
+      footer: info => info.column.id,
+    }),
+    columnHelper.accessor('egn', {
+      header: () => 'Owner Egn',
       cell: info => info.renderValue(),
       footer: info => info.column.id,
     })
@@ -380,23 +364,31 @@ export const PropertyTable = (props) => {
           placeholder="Search all columns..."
         />
       
-          <props.Button action={() => {
+          <Button  onClick={() => {
             setConfirmDeleteModal(true)       
            
-          }}><FaTrash /></props.Button>
+          }}><FaTrash /></Button>
 
-          <props.Button action={() => props.editButtonMethod(table.getSelectedRowModel().rowsById)}><FaEdit /></props.Button>
+          <Button onClick={() => props.editButtonMethod(table.getSelectedRowModel().rowsById)}><FaEdit /></Button>
 
           </div>
-          <props.Button action={props.newButtonMethod} color='green'>New </props.Button>
+          <Button onClick={() => props.newButtonMethod()} color='green'>New </Button>
       </div>
       <ConfirmationBox />
-      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id} className="bg-slate-200 text-lg">
+      <table className="w-full text-sm text-left text-gray-500  dark:text-gray-200 table-fixed">
+        <thead className="text-xs text-gray-700  bg-gray-50 dark:bg-teal-900 dark:text-gray-400">
+          {table.getHeaderGroups().map(headerGroup => {
+            console.log(headerGroup) 
+            return (
+            <tr key={headerGroup.id} className="bg-slate-200 text-lg dark:bg-teal-900 dark:text-gray-200 ">
               {headerGroup.headers.map(header => (
-                <th className="" key={header.id}>
+                <th key={header.id} className={
+                  header.id == "select" ? "w-2 min-w-2 max-w-2 " : 
+                  header.id == "id" ? "w-4 min-w-4" : 
+                  header.id=="title" ? "w-10 min-width-10" : 
+                  header.id == "type" ? "w-8 min-w-8" : 
+                  header.id == "description" ? "w-16 min-w-16" : 
+                  header.id == "egn" ? "w-6 min-w-6" : ''}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -406,13 +398,13 @@ export const PropertyTable = (props) => {
                 </th>
               ))}
             </tr>
-          ))}
+          )})}
         </thead>
         <tbody className="border">
           {table.getRowModel().rows.map(row => (
-            <tr className="even:bg-gray-100 odd:bg-white" key={row.id} >
+            <tr className="even:bg-gray-100 odd:bg-white dark:even:bg-neutral-950 dark:odd:bg-black" key={row.id} >
               {row.getVisibleCells().map(cell => (
-                <td className="w-72" key={cell.id}>
+                <td  key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -422,8 +414,8 @@ export const PropertyTable = (props) => {
       </table>
       <div className="flex gap-4 items-center justify-between pt-3 pb-3">
       <Button onClick={ () => table.previousPage()}
-        disabled={!table.getCanPreviousPage()} > Previous</Button>
-      <span className="flex items-center gap-1">
+        disabled={!table.getCanPreviousPage()} color="green"> Previous</Button>
+      <span className="flex items-center gap-1 dark:text-white">
           <div>Page</div>
           <strong>
             {table.getState().pagination.pageIndex + 1} of{' '}
@@ -431,7 +423,7 @@ export const PropertyTable = (props) => {
           </strong>
       </span>
       <Button onClick={ () => table.nextPage()}
-        disabled={!table.getCanNextPage()} > Next</Button>
+        disabled={!table.getCanNextPage()} color="green" > Next</Button>
       </div>
     </div>
   )

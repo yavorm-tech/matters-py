@@ -78,7 +78,7 @@ function Example() {
 function App() {
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900 px-4 pt-6">
+    <section className="bg-gray-50 dark:bg-black px-4 pt-6">
       <div className="absolute top-0 right-0 z-10"><DarkThemeToggle /></div>      
       <div className="mx-auto  px-4 lg:px-12 w-full">
 
@@ -88,7 +88,7 @@ function App() {
             <li><Link to="/person-property" className="flex p-3"><IoMdGitCommit />Person property</Link></li>
           </ul>
         </nav>
-        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden p-3">
           <Routes>
             <Route path="/person" element={<PersonPanel />} />
             <Route path="/person-property" element={<PersonPropertyPanel />} />

@@ -36,13 +36,14 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
     const [openModal, setOpenModal] = useState<string | undefined>();
     const [modalPlacement, setModalPlacement] = useState<string>('center');
     const [email, setEmail] = useState("");
-    const [inProgress, setInProgress] = useState(false)
+    const [inProgress, setInProgress] = useState<Boolean | undefined>(false)
     const props = { openModal, setOpenModal, email, setEmail, setModalPlacement, modalPlacement };
     const [reloaded, setReloaded] = useState(false)
-    const [hasError, setHasError] = useState(false)
+    const [onDeleteError, setOnDeleteError] = useState<String>('')
+    const [onDeleteErrorModal, setOnDeleteErrorModal] = useState<boolean | undefined>(false)
+    const [onNewError, setOnNewError] = useState<Boolean | undefined>(false)
     const queryClient = useQueryClient()
-    const deletePersons = (rec:any) => {
-      let cur_records = rec
+    const deletePersons = (cur_records:any) => {
       let ids:BigInteger[] = []
       
       cur_records.forEach( (elem:any) => {
@@ -52,6 +53,7 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
         'Content-Type': 'application/json'
       }
       setInProgress(true)
+      console.log(ids)
       ids.forEach( (id) => {
         axios.delete(`/api/person/${id}`, {
           headers: headers
@@ -62,10 +64,17 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
             console.log(res),
             persons.refetch()
           )
+        }).catch( (error) => {
+          setInProgress(false)
+          setOnDeleteError(error.response.data)
+          setOnDeleteErrorModal(true)
+          console.log(error.response.data)
+          return(error.response.data)
         })
       })
-      
-      
+    }
+    const editPerson = () => {
+
     }
     const onSubmit = (rec) => {
         // Do something with form data
@@ -84,13 +93,34 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
             setOpenModal('undefined')
             persons.refetch()
           }else{
-            setHasError(true)
+            setOnNewError(true)
             setOpenModal('undefined')
           }
         })
  
     }
-
+    const OnDeleteErrorBox = () => {
+      return(
+        <div>
+          <Modal show={onDeleteErrorModal} onClose={() => setOnDeleteErrorModal(false)}>
+          <Modal.Header>
+            Delete Error
+          </Modal.Header>
+          <Modal.Body>
+            <div className="space-y-6">
+              <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400 text-center" >
+                {onDeleteError}
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="flex flex-row justify-evenly">
+            <Button onClick={() => {
+               setOnDeleteErrorModal(false)
+              }}>Ok</Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    )}
     const persons = useQuery({
       queryKey: ['persons'],
       queryFn: () => fetch("/api/person").then( (res) => res.json()),
@@ -99,6 +129,7 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
     })
     return (
         <div>
+        <OnDeleteErrorBox />
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
             <Modal.Header><div className="text-blue-700 "> Add new person</div></Modal.Header>
         <Modal.Body>
@@ -108,11 +139,11 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
         {inProgress ? <ImSpinner9 className="loading-icon" /> : ""} 
           {persons.isSuccess ? 
           <PersonsTable newButton={CustomButton}
-                        deleteButton={CustomButtonTable} 
+                        Button={CustomButtonTable} 
+                        editButtonMethod={editPerson} 
                         deleteButtonMethod={deletePersons} 
                         newButtonMethod = { () => setOpenModal('dismissible') }
                         data={persons.data}
-
           />: ''
           }
         </div>

@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, request, jsonify
+from flask import Blueprint, current_app, request, jsonify, make_response
 from flask_cors import cross_origin, CORS
 import json
 import logging
@@ -11,6 +11,7 @@ from tasks.tasks import deletePersonTask, addPersonTask, deletePersonPropertyTas
 from seeders.insert_person_records import InsertFakeData
 from celery import group
 from os import path, mkdir
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger()
 
@@ -62,46 +63,57 @@ def addperson():
 
 @my_blueprint.route('/person/<id>', methods=['DELETE'])
 def deletepersons(id):
-    result = 0
     result = deletePersonTask(id)
-    if (result):
-        logger.error(f"Error deleting person {id}")
-    return jsonify({"result": result})
+
+    if isinstance(result, IntegrityError):
+        print(result)
+        return "The Person has records in property. Delete corresponding property records first.", 406
+    if (result == True):
+        return "Record deleted", 200
+
+    print(result)
+    return "Undefined error", 400
 
 
 @my_blueprint.route('/person-property', methods=['GET'])
 def getAllPersonProperty():
-    person_prop = db.session.query(PersonProperty).all()
+    person_prop = db.session.query(PersonProperty, Person).join(
+        Person, PersonProperty.person_id == Person.id).order_by(PersonProperty.id.desc()).all()
     data = []
     for prop in person_prop:
-        data.append(prop.to_dict(
-            show=['id', 'title', 'type', 'description']))
-    print(data)
+        person_property = prop[0].to_dict(
+            show=['id', 'title', 'type', 'description'])
+
+        person = prop[1].to_dict(
+            show=['first_name', 'middle_name', 'last_name', 'egn'], _hide=['id'])
+        print(person)
+        person_property.update(person)
+        data.append(person_property)
     return jsonify(data)
 
 
-@my_blueprint.route('/person-property/<id>', methods=['GET'])
+@ my_blueprint.route('/person-property/<id>', methods=['GET'])
 def getPersonPropertyById():
     pass
 
 
-@my_blueprint.route('/person-property', methods=['POST'])
+@ my_blueprint.route('/person-property', methods=['POST'])
 def createPersonProperty():
     pass
 
 
-@my_blueprint.route('/person-property/<id>', methods=['DELETE'])
+@ my_blueprint.route('/person-property/<id>', methods=['DELETE'])
 def deletePersonProperty(id):
     result = deletePersonPropertyTask(id)
     return jsonify({"result": result})
 
 
-@my_blueprint.route('/person-property/<id>', methods=['PATCH'])
+@ my_blueprint.route('/person-property/<id>', methods=['PATCH'])
 def updatePersonProperty():
     pass
 
 
-@my_blueprint.route('/seedpersons', methods=['GET'])
+@ my_blueprint.route('/seedpersons', methods=['GET'])
 def seedPersons():
     faker = InsertFakeData()
     persons = faker.create10Persons()

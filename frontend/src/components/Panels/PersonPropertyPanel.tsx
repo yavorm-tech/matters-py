@@ -12,6 +12,15 @@ import { AddPropertyForm } from "../Forms/AddPropertyForm.tsx";
 import axios from "axios";
 import { CustomButtonTable } from "../../Presentational/CustomButtonTable.tsx";
 
+
+export interface Property {
+  id: BigInteger,
+  title: String,
+  type: String,
+  description: String,
+  egn: String,
+  action: () => {}
+}
 export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     const [openModal, setOpenModal] = useState<string | undefined>();
     const [modalPlacement, setModalPlacement] = useState<string>('center');
@@ -24,7 +33,6 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     const [email, setEmail] = useState("");
     const props = { openModal, setOpenModal, email, setEmail, setModalPlacement, modalPlacement };
   
-    
     const deletePersonProperty = (cur_records:any) => {
       let ids:BigInteger[] = []
       console.log(cur_records)
@@ -41,10 +49,10 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
         axios.delete(`/api/person-property/${id}`, {
           headers: headers
         }).then( (res) => {
+          console.log(res);
           setInProgress(false)
           //table.resetRowSelection() // this might be a problem
           return (
-            console.log(res),
             person_property.refetch()
           )
         })
@@ -78,7 +86,6 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
         })
  
     }
-
     const person_property = useQuery({
       queryKey: ['person_prop'],
       queryFn: () => fetch("/api/person-property").then( (res) => res.json()),
@@ -86,6 +93,7 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
       refetchOnWindowFocus: true,
     })
 
+  
     return (
         <div>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
@@ -97,14 +105,13 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
       
         <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 border-t dark:border-gray-700">
           {person_property.isSuccess ?
-          <PropertyTable newButton={CustomButton}
-                          Button={CustomButtonTable} 
-                          deleteButtonMethod={deletePersonProperty}
+          <PropertyTable  deleteButtonMethod={deletePersonProperty}
                           editButtonMethod={editPersonProperty} 
                           newButtonMethod = { () => setOpenModal('dismissible') }
                           data={person_property.data}
                           />
                           : ''}
+                          
         </div>
       </div>
         
