@@ -1,17 +1,16 @@
 import { AddPersonForm } from "../Forms/AddPersonForm.tsx";
-import { PersonsTable } from "../Tables/PersonsTable.tsx";
 import React,{FC, useState, useRef, useEffect, PropsWithChildren} from 'react';
 import { Button, Modal,  Checkbox, Label, TextInput, CustomFlowbiteTheme } from 'flowbite-react';
 import { useQuery } from "@tanstack/react-query";
 import { buttonTheme } from "../../themes/buttonTheme";
-import { CustomButton } from "../../Presentational/Button/CustomButton";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { modalTheme } from "../../themes/modalTheme";
-import { PropertyTable } from "../Tables/PropertyTable.tsx";
 import { AddPropertyForm } from "../Forms/AddPropertyForm.tsx";
 import axios from "axios";
-import { CustomButtonTable } from "../../Presentational/CustomButtonTable.tsx";
-
+import { ColumnDef } from "@tanstack/react-table";
+import { IndeterminateCheckbox } from "../Functional/IndeterminateCheckbox.tsx"
+import { AbstractTable } from "../Tables/AbstractTable.tsx";
+import { ImSpinner9 } from "react-icons/im";
 
 export interface Property {
   id: BigInteger,
@@ -93,7 +92,69 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
       refetchOnWindowFocus: true,
     })
 
-  
+    const columns: ColumnDef<Property>[] = [
+      {
+        accessorKey: 'select',
+        header: ({ table }) => (
+            <div className="w-6">
+            <IndeterminateCheckbox
+                {...{
+                  checked: table.getIsAllRowsSelected(),
+                  indeterminate: table.getIsSomeRowsSelected(),
+                  onChange: table.getToggleAllRowsSelectedHandler(),
+                }}
+            />
+            </div>
+        ),
+        cell: ({ row }) => (
+            <div className="">
+              <IndeterminateCheckbox
+                  {...{
+                    checked: row.getIsSelected(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+              />
+            </div>
+        ),
+        size: 20,
+      },
+      {
+        accessorKey: 'id',
+        header: () => <div className="w-4">Id</div>,
+        cell: info => <div>{info.getValue()}</div>,
+        size: 30,
+      },
+      {
+        accessorKey: 'title',
+        id: 'title',
+        cell: info => info.getValue(),
+        header: () => <span>Title</span>,
+        size: 100,
+      },
+      {
+        accessorKey: 'type',
+        header: () => 'Type',
+        cell: info => <> {info.renderValue() == '0' ? "Movable" : 'Real Estate'}</>,
+        footer: info => info.column.id,
+        size: 50
+        
+      },
+      {
+        accessorKey: 'description',
+        header: () => 'Description',
+        cell: info => info.renderValue(),
+        footer: info => info.column.id,
+        size: 500
+      },
+      {
+        accessorKey: 'egn',
+        header: () => 'Owner Egn',
+        cell: info => info.renderValue(),
+        footer: info => info.column.id,
+        size: 100
+      }
+    ]
     return (
         <div>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
@@ -104,14 +165,15 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
       </Modal>
       
         <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 border-t dark:border-gray-700">
+          {inProgress ? <ImSpinner9 className="loading-icon" /> : ""} 
           {person_property.isSuccess ?
-          <PropertyTable  deleteButtonMethod={deletePersonProperty}
+          <AbstractTable  deleteButtonMethod={deletePersonProperty}
                           editButtonMethod={editPersonProperty} 
                           newButtonMethod = { () => setOpenModal('dismissible') }
                           data={person_property.data}
+                          columns={columns}
                           />
-                          : ''}
-                          
+                          : ''}                          
         </div>
       </div>
         

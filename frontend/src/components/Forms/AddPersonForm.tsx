@@ -9,7 +9,6 @@ import {useForm} from "@tanstack/react-form";
 import { zodValidator} from "@tanstack/zod-form-adapter";
 import {z} from 'zod'
 import {Checkbox} from "flowbite-react";
-import { PropertyTable } from '../Tables/PropertyTable';
 /*TODO add     git_url = "git@github.com:Payarc/payarc3.0.git" */
 
 //const test = getGitRepos().then( (res) => console.log(res)).catch( (error) => console.log(error));
@@ -141,7 +140,6 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                     </div>
                     <div className='w-96 h-96 b-1'>
                             <button>Add</button> <button>Remove</button>
-                            <PropertyTable />
                     </div>
                     <div className="mb-2 block ">
                         <form.Field

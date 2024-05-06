@@ -1,7 +1,5 @@
 import './App.css'
-import { PersonsTable } from './components/Tables/PersonsTable.tsx'
 import { AddPersonForm } from './components/Forms/AddPersonForm.tsx'
-import { CommitsTable } from './components/Tables/CommitsTable'
 import { Tabs, Sidebar, Navbar, Button,Flowbite, DarkThemeToggle  } from 'flowbite-react'
 import { HiAdjustments, HiClipboardList, HiUserCircle } from 'react-icons/hi';
 import { MdCommit } from 'react-icons/md';
@@ -9,7 +7,6 @@ import {GrDeploy} from 'react-icons/gr'
 import { customTheme } from './themes/customTheme'
 import { PersonPanel } from './components/Panels/PersonPanel.tsx'
 import { PersonPropertyPanel } from './components/Panels/PersonPropertyPanel.tsx'
-import { TestTable } from './components/Tables/test'
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from 'react-icons/hi';
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'

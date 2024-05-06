@@ -1,18 +1,18 @@
 import { AddPersonForm } from "../Forms/AddPersonForm.tsx";
-import { PersonsTable } from "../Tables/PersonsTable.tsx";
 import React,{FC, useState, useRef, useEffect, PropsWithChildren} from 'react';
 import { Button, Modal,  Checkbox, Label, TextInput, CustomFlowbiteTheme } from 'flowbite-react';
 import { buttonTheme } from "../../themes/buttonTheme";
-import { CustomButton } from "../../Presentational/Button/CustomButton";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { modalTheme } from "../../themes/modalTheme";
 import {AddNewPersonForm} from "../Forms/AddNewPersonForm.tsx";
-import { CustomButtonTable } from "../../Presentational/CustomButtonTable.tsx";
 import axios from "axios";
 import { ImSpinner9 } from "react-icons/im";
 import "./PersonPanel.css"
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import Test from "./test.tsx"
+import { IndeterminateCheckbox } from "../Functional/IndeterminateCheckbox.tsx"
+import { AbstractTable } from "../Tables/AbstractTable.tsx";
+import { ColumnDef } from "@tanstack/react-table";
 
 async function getPersons() {
   return fetch(`https://api.github.com/users/${username}`)
@@ -31,6 +31,16 @@ const User = ({username}) => {
   }
 
   return <p>{userQuery.data.name}</p>;
+}
+type Person = {
+  id: BigInteger,
+  first_name: String,
+  middle_name: String,
+  last_name: String,
+  egn: BigInt,
+  eik: BigInt,
+  ssn: BigInt
+  fpn: BigInt,
 }
 export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
     const [openModal, setOpenModal] = useState<string | undefined>();
@@ -127,6 +137,77 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
       refetchInterval: 30000,
       refetchOnWindowFocus: true,
     })
+    const columns: ColumnDef<Person>[] = [
+      {
+        accessorKey: 'select',
+        header: ({ table }) => (
+            <div className="w-6">
+            <IndeterminateCheckbox
+                {...{
+                  checked: table.getIsAllRowsSelected(),
+                  indeterminate: table.getIsSomeRowsSelected(),
+                  onChange: table.getToggleAllRowsSelectedHandler(),
+                }}
+            />
+            </div>
+        ),
+        cell: ({ row }) => (
+            <div className="">
+              <IndeterminateCheckbox
+                  {...{
+                    checked: row.getIsSelected(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+              />
+            </div>
+        ),
+        size: 20,
+      },
+      {
+        accessorKey: 'id',
+        header: () => <div className="w-4">Id</div>,
+        cell: info => <div>{info.getValue()}</div>,
+        size: 30,
+      },
+      {
+        accessorKey: 'first_name',
+        cell: info => info.getValue(),
+        header: () => <span>First Name</span>,
+        size: 100,
+      },
+      {
+        accessorKey: 'middle_name',
+        header: () => 'Middle Name',
+        cell: info => info.renderValue(),
+        size: 100
+        
+      },
+      {
+        accessorKey: 'last_name',
+        header: () => 'Last Name',
+        cell: info => info.renderValue(),
+        size: 100
+      },
+      {
+        accessorKey: 'egn',
+        header: () => 'Egn',
+        cell: info => info.renderValue(),
+        size: 100
+      },
+      {
+        accessorKey: 'eik',
+        header: () => 'Eik/Bulstat',
+        cell: info => info.renderValue(),
+        size: 100
+      },
+      {
+        accessorKey: 'fpn',
+        header: () => 'Foreign Person N',
+        cell: info => info.renderValue(),
+        size: 100
+      }
+    ]
     return (
         <div>
         <OnDeleteErrorBox />
@@ -136,16 +217,18 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
           <AddPersonForm test="one" action={() => setOpenModal('undefined')} onSubmit={onSubmit} />
         </Modal.Body>
       </Modal>
+      <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 border-t dark:border-gray-700">
+
         {inProgress ? <ImSpinner9 className="loading-icon" /> : ""} 
           {persons.isSuccess ? 
-          <PersonsTable newButton={CustomButton}
-                        Button={CustomButtonTable} 
-                        editButtonMethod={editPerson} 
-                        deleteButtonMethod={deletePersons} 
-                        newButtonMethod = { () => setOpenModal('dismissible') }
-                        data={persons.data}
+          <AbstractTable editButtonMethod={editPerson} 
+                         deleteButtonMethod={deletePersons} 
+                         newButtonMethod = { () => setOpenModal('dismissible') }
+                         data={persons.data}
+                         columns = {columns}
           />: ''
           }
         </div>
+      </div>
     )
 }
