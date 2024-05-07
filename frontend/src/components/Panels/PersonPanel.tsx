@@ -1,10 +1,8 @@
-import { AddPersonForm } from "../Forms/AddPersonForm.tsx";
 import React,{FC, useState, useRef, useEffect, PropsWithChildren} from 'react';
 import { Button, Modal,  Checkbox, Label, TextInput, CustomFlowbiteTheme } from 'flowbite-react';
 import { buttonTheme } from "../../themes/buttonTheme";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { modalTheme } from "../../themes/modalTheme";
-import {AddNewPersonForm} from "../Forms/AddNewPersonForm.tsx";
 import axios from "axios";
 import { ImSpinner9 } from "react-icons/im";
 import "./PersonPanel.css"
@@ -12,7 +10,9 @@ import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tan
 import Test from "./test.tsx"
 import { IndeterminateCheckbox } from "../Functional/IndeterminateCheckbox.tsx"
 import { AbstractTable } from "../Tables/AbstractTable.tsx";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, RowSelection } from "@tanstack/react-table";
+import { Edit } from "lucide-react";
+import { PersonForm } from "../Forms/PersonForm.tsx";
 
 async function getPersons() {
   return fetch(`https://api.github.com/users/${username}`)
@@ -32,14 +32,13 @@ const User = ({username}) => {
 
   return <p>{userQuery.data.name}</p>;
 }
-type Person = {
-  id: BigInteger,
+export type Person = {
+  id?: BigInteger,
   first_name: String,
   middle_name: String,
   last_name: String,
   egn: BigInt,
   eik: BigInt,
-  ssn: BigInt
   fpn: BigInt,
 }
 export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
@@ -52,6 +51,8 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
     const [onDeleteError, setOnDeleteError] = useState<String>('')
     const [onDeleteErrorModal, setOnDeleteErrorModal] = useState<boolean | undefined>(false)
     const [onNewError, setOnNewError] = useState<Boolean | undefined>(false)
+    const [showEditModal, setShowEditModal] = useState<string | undefined>()
+    const [editRecordData, setEditRecordData] = useState<Person | undefined>()
     const queryClient = useQueryClient()
     const deletePersons = (cur_records:any) => {
       let ids:BigInteger[] = []
@@ -83,18 +84,32 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
         })
       })
     }
-    const editPerson = () => {
+    const editPerson = (rec?:any) => {
+      let selectedIndex = Object.getOwnPropertyNames(rec)[0]
+      const {id,first_name,middle_name,last_name,egn,eik,fpn} = rec[selectedIndex].original
+      let data:Person = {
+          id: id,
+          first_name: first_name,
+          middle_name: middle_name,
+          last_name: last_name,
+          egn: egn,
+          eik: eik,
+          fpn: fpn
+      }
+      setEditRecordData(data)
+      setShowEditModal("dissmissible")
 
     }
     const onSubmit = (rec) => {
         // Do something with form data
+        console.log(rec.target)
         let headers = {"Content-Type":"application/json"}
-        const {fName, mName, lName,egn,eik,fpn} = rec.target
+        const {first_name, middle_name, last_name,egn,eik,fpn} = rec.target
         axios.post('/api/person', {
             headers: headers,
-            fname: fName.value,
-            mname: mName.value,
-            lname: lName.value,
+            first_name: first_name.value,
+            middle_name: middle_name.value,
+            last_name: last_name.value,
             egn: egn.value,
             eik: eik.value,
             fpn: fpn.value,
@@ -107,8 +122,37 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
             setOpenModal('undefined')
           }
         })
- 
     }
+    const onSubmitEdit = (rec) => {
+      console.log(rec)
+      // Do something with form data
+      let headers = {"Content-Type":"application/json"}
+      const {first_name, middle_name, last_name,egn,eik,fpn} = rec.target
+      const {id} = editRecordData
+      axios.put(`/api/person/${id}`, {
+        headers: headers,
+        first_name: first_name.value,
+        middle_name: middle_name.value,
+        last_name: last_name.value,
+        egn: egn.value,
+        eik: eik.value,
+        fpn: fpn.value,
+    }).then( (res) => {
+      if(res.status == 201){
+        setShowEditModal('undefined')
+        setEditRecordData(undefined)
+        persons.refetch()
+      }else{
+        setOnNewError(true)
+        setShowEditModal('undefined')
+      }
+    }).catch( (error) => {
+      console.log(error)
+      setShowEditModal('undefined')
+      persons.refetch()
+    })
+
+  }
     const OnDeleteErrorBox = () => {
       return(
         <div>
@@ -208,15 +252,28 @@ export const PersonPanel:FC<PropsWithChildren> = ({children}) => {
         size: 100
       }
     ]
+    const EditRecord = () => {
+      return (
+        <div>
+          <Modal show={showEditModal === 'dissmissible'} size='3xl' popup onClose={() => setShowEditModal('undefined')} position='center' theme={modalTheme}>
+          <Modal.Header><div className="text-blue-700 ">Edit Person</div></Modal.Header>
+            <Modal.Body>
+              <PersonForm data={editRecordData} action={() => setShowEditModal('undefined')} onSubmit={onSubmitEdit}/> 
+            </Modal.Body>
+          </Modal>
+        </div>
+      )
+    }
     return (
         <div>
         <OnDeleteErrorBox />
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
             <Modal.Header><div className="text-blue-700 "> Add new person</div></Modal.Header>
         <Modal.Body>
-          <AddPersonForm test="one" action={() => setOpenModal('undefined')} onSubmit={onSubmit} />
+          <PersonForm action={() => setOpenModal('undefined')} onSubmit={onSubmit} />
         </Modal.Body>
       </Modal>
+      <EditRecord />
       <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 border-t dark:border-gray-700">
 
         {inProgress ? <ImSpinner9 className="loading-icon" /> : ""} 

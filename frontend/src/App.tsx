@@ -1,5 +1,4 @@
 import './App.css'
-import { AddPersonForm } from './components/Forms/AddPersonForm.tsx'
 import { Tabs, Sidebar, Navbar, Button,Flowbite, DarkThemeToggle  } from 'flowbite-react'
 import { HiAdjustments, HiClipboardList, HiUserCircle } from 'react-icons/hi';
 import { MdCommit } from 'react-icons/md';

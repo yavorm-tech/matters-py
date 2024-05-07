@@ -7,7 +7,7 @@ from uuid import uuid4
 import random
 import re
 import pdb
-from tasks.tasks import deletePersonTask, addPersonTask, deletePersonPropertyTask
+from tasks.tasks import deletePersonTask, addPersonTask, deletePersonPropertyTask, updatePersonTask, addPersonPropertyTask
 from seeders.insert_person_records import InsertFakeData
 from celery import group
 from os import path, mkdir
@@ -75,6 +75,17 @@ def deletepersons(id):
     return "Undefined error", 400
 
 
+@my_blueprint.route('/person/<id>', methods=['PUT'])
+def updatepersons(id):
+    data = json.loads(request.get_data())
+    data['id'] = id
+    result = updatePersonTask(data)
+    if (result == True):
+        return "Record updated", 201
+    print(result)
+    return "Undefined error", 400
+
+
 @my_blueprint.route('/person-property', methods=['GET'])
 def getAllPersonProperty():
     person_prop = db.session.query(PersonProperty, Person).join(
@@ -98,8 +109,15 @@ def getPersonPropertyById():
 
 
 @ my_blueprint.route('/person-property', methods=['POST'])
-def createPersonProperty():
-    pass
+def addPersonProperty():
+    result = False
+    if (request.get_data()):
+        params = json.loads(request.get_data())
+        result = addPersonPropertyTask(params)
+        if (result == True):
+            return "Property created", 201
+        else:
+            return "Undefined error", 400
 
 
 @ my_blueprint.route('/person-property/<id>', methods=['DELETE'])

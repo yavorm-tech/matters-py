@@ -23,6 +23,24 @@ def add(self, x, y):
     return x + y
 
 
+@shared_task(name='update person', bind=True, base=AbortableTask)
+def updatePersonTask(self, params):
+    try:
+        person = Person.query.get(params['id'])
+        person.first_name = params['first_name']
+        person.middle_name = params['middle_name']
+        person.last_name = params['last_name']
+        person.egn = params['egn']
+        person.eik = params['eik']
+        person.fpn = params['fpn']
+        db.session.commit()
+        return True
+    except Exception as e:
+        logger.error(f"Error updating person with id {params['id']}")
+        logger.error(e)
+        return (e)
+
+
 @shared_task(name='delete person', bind=True, base=AbortableTask)
 def deletePersonTask(self, id):
     try:
@@ -50,17 +68,35 @@ def deletePersonPropertyTask(self, id):
 
 @shared_task(name="add person", bind=True, base=AbortableTask)
 def addPersonTask(self, params):
-    f_name = params['fname']
-    m_name = params['mname']
-    l_name = params['lname']
+    first_name = params['first_name']
+    middle_name = params['middle_name']
+    last_name = params['last_name']
     egn = params['egn']
     eik = params['eik']
     fpn = params['fpn']
     result = False
     try:
-        new_person = Person(first_name=f_name, middle_name=m_name,
-                            last_name=l_name, egn=egn, eik=eik, fpn=fpn)
+        new_person = Person(first_name=first_name, middle_name=middle_name,
+                            last_name=last_name, egn=egn, eik=eik, fpn=fpn)
         db.session.add(new_person)
+        db.session.commit()
+        result = True
+    except Exception as e:
+        print(e)
+    return result
+
+
+@shared_task(name="add person property", bind=True, base=AbortableTask)
+def addPersonPropertyTask(self, params):
+    title = params['title']
+    type = params['type']
+    description = params['description']
+    result = False
+    # if person id is selected add it to the property table ** TODO
+    try:
+        new_personproperty = PersonProperty(title=title, type=type,
+                                            description=description)
+        db.session.add(new_personproperty)
         db.session.commit()
         result = True
     except Exception as e:

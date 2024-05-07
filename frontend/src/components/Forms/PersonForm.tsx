@@ -9,46 +9,36 @@ import {useForm} from "@tanstack/react-form";
 import { zodValidator} from "@tanstack/zod-form-adapter";
 import {z} from 'zod'
 import {Checkbox} from "flowbite-react";
+import { Person } from '../Panels/PersonPanel';
 /*TODO add     git_url = "git@github.com:Payarc/payarc3.0.git" */
 
 //const test = getGitRepos().then( (res) => console.log(res)).catch( (error) => console.log(error));
 
 
-interface AddPersonFormProps {
-    test: string,
+interface PersonFormProps {
+    data?: any,
     action(): void
     onSubmit(e?): void
 }
 
-export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
+export const PersonForm: FC<PersonFormProps> = (props) => {
 
     const form = useForm({
         defaultValues: {
-            fName: '',
-            mName: '',
-            lName: '',
-            egn: '',
-            eik: '',
-            fpn: '',
+            first_name: props.data ? props.data.first_name : '',
+            middle_name: props.data ? props.data.middle_name : '',
+            last_name: props.data ? props.data.last_name : '',
+            egn: props.data ? props.data?.egn : '',
+            eik: props.data ? props.data?.eik : '',
+            fpn: props.data ? props.data?.fpn : '',
             is_jurisdict_person: false
         },
         onSubmit: async ({ value }) => {
-            // Do something with form data
-            let headers = {"Content-Type":"application/json"}
-            axios.post('/api/person', {
-                headers: headers,
-                fname: value.fName,
-                mname: value.mName,
-                lname: value.lName,
-                egn: value.egn,
-                eik: value.eik,
-                fpn: value.fpn,
-            })
-            props.action();
+         
         },
         validators: {
             onChange( {value})  {
-                if(value.fName < 3){
+                if(value.fName < '3'){
                     return 'must be at least 3 characters'
                 }
             }
@@ -75,7 +65,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                 >
                     <div className="mb-2 block ">
                         <form.Field
-                            name="fName"
+                            name="first_name"
                             validatorAdapter={zodValidator}
                             validators={{
                                 onChange: z.string().min(3, 'must be at least 3 characters'),
@@ -138,34 +128,9 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
 
 
                     </div>
-                    <div className='w-96 h-96 b-1'>
-                            <button>Add</button> <button>Remove</button>
-                    </div>
                     <div className="mb-2 block ">
                         <form.Field
-                            name="isForeignPerson"
-                            children={(field) => (
-                                <div className="flex gap-2">
-                                    <label htmlFor={field.name} className="w-46">
-                                        Is Foreign person
-                                        {}
-                                        <Checkbox className="w-6 h-6"
-                                                  checked
-                                                  id={field.name}
-                                                  onChange={(e) => {
-                                                      console.log(e)
-                                                  }}
-
-                                        />
-                                    </label>
-                                </div>
-                            )}/>
-
-
-                    </div>
-                    <div className="mb-2 block ">
-                        <form.Field
-                            name="mName"
+                            name="middle_name"
                             validatorAdapter={zodValidator}
                             validators={{
                                 onChange: z.string().min(4, 'must be at least 4 characters'),
@@ -196,10 +161,10 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                     </div>
                     <div className="mb-2 block ">
                         <form.Field
-                            name="lName"
+                            name="last_name"
                             validatorAdapter={zodValidator}
                             validators={{
-                                onChange: z.string().min(5, 'must be at least 5 characters'),
+                                onChange: z.string().min(2, 'must be at least 5 characters'),
                                 onChangeAsyncDebounceMs: 500,
                                 onChangeAsync: z.string().refine(
                                     async (value) => {
@@ -324,7 +289,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = (props) => {
                         children={([canSubmit, isSubmitting]) => (
                             <button type="submit" disabled={!canSubmit}
                                     className={!canSubmit ? "text-white bg-gray-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center\" disabled>Disabled button"
-                                        : "focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"}>
+                                        : "focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-teal-900 dark:hover:bg-teal-800 dark:focus:ring-teal-900"}>
                                 {isSubmitting ? '...' : 'Submit'}
                             </button>
                         )}/>

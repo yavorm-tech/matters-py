@@ -1,24 +1,22 @@
-import { AddPersonForm } from "../Forms/AddPersonForm.tsx";
 import React,{FC, useState, useRef, useEffect, PropsWithChildren} from 'react';
 import { Button, Modal,  Checkbox, Label, TextInput, CustomFlowbiteTheme } from 'flowbite-react';
 import { useQuery } from "@tanstack/react-query";
 import { buttonTheme } from "../../themes/buttonTheme";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { modalTheme } from "../../themes/modalTheme";
-import { AddPropertyForm } from "../Forms/AddPropertyForm.tsx";
+import { PropertyForm } from "../Forms/PropertyForm.tsx";
 import axios from "axios";
 import { ColumnDef } from "@tanstack/react-table";
 import { IndeterminateCheckbox } from "../Functional/IndeterminateCheckbox.tsx"
 import { AbstractTable } from "../Tables/AbstractTable.tsx";
 import { ImSpinner9 } from "react-icons/im";
 
-export interface Property {
+export interface PropertyInterface {
   id: BigInteger,
   title: String,
   type: String,
   description: String,
   egn: String,
-  action: () => {}
 }
 export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     const [openModal, setOpenModal] = useState<string | undefined>();
@@ -65,15 +63,12 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     const onSubmit = (rec) => {
         // Do something with form data
         let headers = {"Content-Type":"application/json"}
-        const {fName, mName, lName,egn,eik,fpn} = rec.target
-        axios.post('/api/person', {
+        const {title, type, description} = rec.target
+        axios.post('/api/person-property', {
             headers: headers,
-            fname: fName.value,
-            mname: mName.value,
-            lname: lName.value,
-            egn: egn.value,
-            eik: eik.value,
-            fpn: fpn.value,
+            title: title.value,
+            type: type.value,
+            description: description.value,
         }).then( (res) => {
           if(res.status == 200){
             setOpenModal('undefined')
@@ -88,11 +83,11 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     const person_property = useQuery({
       queryKey: ['person_prop'],
       queryFn: () => fetch("/api/person-property").then( (res) => res.json()),
-      refetchInterval: 30000,
+      refetchInterval: 0,
       refetchOnWindowFocus: true,
     })
 
-    const columns: ColumnDef<Property>[] = [
+    const columns: ColumnDef<PropertyInterface>[] = [
       {
         accessorKey: 'select',
         header: ({ table }) => (
@@ -158,9 +153,9 @@ export const PersonPropertyPanel:FC<PropsWithChildren> = ({children}) => {
     return (
         <div>
         <Modal show={props.openModal === 'dismissible'} size="3xl" popup onClose={() => props.setOpenModal(undefined)} position="center" theme={modalTheme} >
-        <Modal.Header>Add new person</Modal.Header>
+        <Modal.Header><div className="dark:text-blue-700">Add new property</div></Modal.Header>
         <Modal.Body>
-          <AddPropertyForm test="one" action={() => setOpenModal('undefined')} onSubmit={onSubmit} />
+          <PropertyForm action={() => setOpenModal('undefined')} onSubmit={onSubmit} />
         </Modal.Body>
       </Modal>
       
